@@ -10,13 +10,17 @@ The model trains on 8000 training images and achieves an accuracy of 88%
 Below is a sample from the classification on the test set images. As you can see, the model was able to accurately classify images to a large extent.
 ![alt text](https://github.com/aus2101/CatDog/blob/master/log/catdog.png)
 
-Dependencies:
+## Dependencies:
 1. cv2 (opencv for resizing images)
 2. numpy
 3. Tqdm (for visualization)
 4. Pyplot/Matplotlib
 
-Deep learning Dependencies:
+## Deep learning Dependencies:
 1. tflearn
 2. tensorflow
 
+This works well with Python 3.
+
+## Basic Usage
+Simply clone the repo and run **'python CatOrDog.py'**

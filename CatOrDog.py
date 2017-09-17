@@ -18,7 +18,7 @@ TRAIN_DIR = CURR_DIR + '\\dogs_vs_cats\\training_set'
 TEST_DIR = CURR_DIR + '\\dogs_vs_cats\\test_set'
 IMG_SIZE = 50 # choosing squared pixel-ed matrix only
 LR = 1e-3
-EPOCH = 20
+EPOCH = 2
 TENSORBOARD_DIR = CURR_DIR + "\\LOG"
 
 MODEL_NAME = 'dogsvscats-{}.model'.format(datetime.datetime.today().strftime('%Y-%m-%d'))
@@ -131,6 +131,7 @@ for num, data in enumerate(test_data[:25]):
     # print the data in the sub plot grid
     subplot.imshow(orig, cmap='gray')
     plt.title(str_label)
+    plt.tight_layout()
     subplot.axes.get_xaxis().set_visible(False)
     subplot.axes.get_yaxis().set_visible(False)
 

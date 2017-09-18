@@ -4,7 +4,7 @@ import os
 from random import shuffle
 from tqdm import tqdm      # for visualization
 import datetime
-import matplotlib.pyplot as plt # for visualization
+import matplotlib.pyplot as plt  # for visualization
 
 # tflearn imports for model learning
 import tflearn
@@ -16,11 +16,14 @@ import tensorflow as tf
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 TRAIN_DIR = CURR_DIR + '\\dogs_vs_cats\\training_set'
 TEST_DIR = CURR_DIR + '\\dogs_vs_cats\\test_set'
-IMG_SIZE = 50 # choosing squared pixel-ed matrix only
+IMG_SIZE = 64 # choosing squared pixel-ed matrix only [BW images used for now]
 LR = 1e-3
-EPOCH = 2
-TENSORBOARD_DIR = CURR_DIR + "\\LOG"
-
+EPOCH = 10
+ACTIVATION_INTERMEDIATE = 'relu'
+ACTIVATION_FINAL = 'softmax'
+OPTIMIZER = ['adam', 'momentum', 'sgd', 'rmsprop']
+LOG_DIR = CURR_DIR + "\\LOG"
+VALIDATION_SIZE = 1000  # size of training set cut off for validation set
 MODEL_NAME = 'dogsvscats-{}.model'.format(datetime.datetime.today().strftime('%Y-%m-%d'))
 
 
@@ -66,37 +69,40 @@ tf.reset_default_graph()
 convnet = input_data(shape=[None, IMG_SIZE, IMG_SIZE, 1], name='input')
 
 # 6 layer conv net with max pooling
-convnet = conv_2d(convnet, 128, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
+convnet = conv_2d(convnet, 128, 4, activation=ACTIVATION_INTERMEDIATE)
+convnet = max_pool_2d(convnet, 4)
 
-convnet = conv_2d(convnet, 128, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
+convnet = conv_2d(convnet, 128, 4, activation=ACTIVATION_INTERMEDIATE)
+convnet = max_pool_2d(convnet, 4)
 
-convnet = conv_2d(convnet, 128, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
+convnet = conv_2d(convnet, 128, 4, activation=ACTIVATION_INTERMEDIATE)
+convnet = max_pool_2d(convnet, 4)
 
-convnet = conv_2d(convnet, 64, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
+convnet = conv_2d(convnet, 128, 4, activation=ACTIVATION_INTERMEDIATE)
+convnet = max_pool_2d(convnet, 4)
 
-convnet = conv_2d(convnet, 32, 5, activation='relu')
-convnet = max_pool_2d(convnet, 5)
+convnet = conv_2d(convnet, 64, 4, activation=ACTIVATION_INTERMEDIATE)
+convnet = max_pool_2d(convnet, 4)
 
-convnet = fully_connected(convnet, 1024, activation='relu')
-convnet = dropout(convnet, 0.8)
+convnet = conv_2d(convnet, 32, 4, activation=ACTIVATION_INTERMEDIATE)
+convnet = max_pool_2d(convnet, 4)
 
-convnet = fully_connected(convnet, 2, activation='softmax')
-convnet = regression(convnet, optimizer='adam', learning_rate=LR, loss='categorical_crossentropy', name='targets')
+convnet = fully_connected(convnet, 1024, activation=ACTIVATION_INTERMEDIATE)
+convnet = dropout(convnet, 0.7)
 
-model = tflearn.DNN(convnet, tensorboard_dir=TENSORBOARD_DIR.replace('\\', '/'))
+convnet = fully_connected(convnet, 2, activation=ACTIVATION_FINAL)
+convnet = regression(convnet, optimizer=OPTIMIZER[0], learning_rate=LR, loss='categorical_crossentropy', name='targets')
 
-# Validation set has only last 500 images of training data
-train = train_data[:-500]
-validation = train_data[-500:]
+model = tflearn.DNN(convnet, tensorboard_dir=LOG_DIR.replace('\\', '/'))
 
-X = np.array([i[0] for i in train]).reshape(-1,IMG_SIZE,IMG_SIZE,1)
+
+train = train_data[:-VALIDATION_SIZE]
+validation = train_data[-VALIDATION_SIZE:]
+
+X = np.array([i[0] for i in train]).reshape(-1, IMG_SIZE, IMG_SIZE, 1)
 Y = [i[1] for i in train]
 
-validation_X = np.array([i[0] for i in validation]).reshape(-1,IMG_SIZE,IMG_SIZE,1)
+validation_X = np.array([i[0] for i in validation]).reshape(-1, IMG_SIZE, IMG_SIZE, 1)
 validation_y = [i[1] for i in validation]
 
 model.fit({'input': X}, {'targets': Y}, n_epoch=EPOCH, validation_set=({'input': validation_X}, {'targets': validation_y}),
@@ -132,11 +138,12 @@ for num, data in enumerate(test_data[:25]):
     subplot.imshow(orig, cmap='gray')
     plt.title(str_label)
     plt.tight_layout()
+    subplot.set_facecolor('yellow')
     subplot.axes.get_xaxis().set_visible(False)
     subplot.axes.get_yaxis().set_visible(False)
 
 plt.interactive(False)
 # For viewing Tensor board dashboard via cmd, do - 'tensorboard --logdir=foo:C:\users\test\...\log'
 # This opens tensor board on localhost:6006
-plt.savefig(TENSORBOARD_DIR +'\\catdog.png' )
+plt.savefig(LOG_DIR +'\\catdog.png' )
 

@@ -3,7 +3,7 @@ This reads the kaggle dataset (https://www.kaggle.com/c/dogs-vs-cats) to classif
 
 There are 6 convolutional layers in the model of varying hidden layer sizes (32 to 128) with a softmax layer at the end to classify output probabilities.
 
-The model trains on 8000 training images and achieves an accuracy of 75%
+The model trains on approx 9000 training images and achieves an accuracy of 75%
 ![alt text](https://github.com/aus2101/CatDog/blob/master/log/bestmodel.PNG)
 
 
